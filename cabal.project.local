@@ -1,0 +1,5 @@
+package *
+  ghc-options: -dynamic
+  library-vanilla: False
+  shared: True
+  executable-dynamic: True

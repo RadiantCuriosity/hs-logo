@@ -28,7 +28,7 @@ tests =
 
 
 -- | The turtle moves forward by the right distance
-movesForward :: Turtle
+movesForward :: TurtleState
              -> Property
 movesForward t =  isPenDown t ==>
      diffPos      == round x  -- position is set correctly
@@ -37,12 +37,12 @@ movesForward t =  isPenDown t ==>
   x            = 2.0
   t'           = t  # forward x
   diffPos :: Int
-  diffPos      = round $ magnitude $ penPos t' .-. penPos t
+  diffPos      = round $ norm $ penPos t' .-. penPos t
   lenCurrTrail :: Int
-  lenCurrTrail = round $ flip arcLength 0.0001 . head . trailSegments . snd . currTrail $ t'
+  lenCurrTrail = round (Diagrams.Prelude.arcLength 0.0001 ((last (lineSegments (unLoc (currTrail t')))) :: Segment Closed V2 Double))
 
 -- | The turtle moves forward by the right distance
-movesBackward :: Turtle
+movesBackward :: TurtleState
              -> Property
 movesBackward t =  isPenDown t ==>
      diffPos      == round x  -- position is set correctly
@@ -51,13 +51,13 @@ movesBackward t =  isPenDown t ==>
   x            = 2.0
   t'           = t  # backward x
   diffPos :: Int
-  diffPos      = round $ magnitude $ penPos t' .-. penPos t
+  diffPos      = round $ norm $ penPos t' .-. penPos t
   lenCurrTrail :: Int
-  lenCurrTrail = round $ flip arcLength 0.0001 . head . trailSegments . snd . currTrail $ t'
+  lenCurrTrail = round (Diagrams.Prelude.arcLength 0.0001 ((last (lineSegments (unLoc (currTrail t')))) :: Segment Closed V2 Double))
 
 -- | The turtle moves forward and backward by the same distance and returns to
 -- the same position
-movesBackwardAndForward :: Turtle
+movesBackwardAndForward :: TurtleState
                         -> Property
 movesBackwardAndForward t = isPenDown t ==>
      abs(endX - startX) < 0.0001
@@ -69,10 +69,10 @@ movesBackwardAndForward t = isPenDown t ==>
   (unp2 -> (startX, startY)) = penPos t
   (unp2 -> (endX, endY))     = penPos t'
   totalSegmentsAdded         = (uncurry (-)) . (getTrailLength *** getTrailLength) $ (t',t)
-  getTrailLength             = (length . trailSegments . snd . currTrail)
+  getTrailLength             = (length . lineSegments . unLoc . currTrail)
 
 -- | The turtle moves left four times and returns to the same position
-movesLeft  :: Turtle
+movesLeft  :: TurtleState
            -> Property
 movesLeft t = isPenDown t ==>
      abs(endX - startX) < 0.0001
@@ -88,7 +88,7 @@ movesLeft t = isPenDown t ==>
   (unp2 -> (endX, endY))     = penPos t'
 
 -- | The turtle moves right four times and returns to the same position
-movesRight  :: Turtle
+movesRight  :: TurtleState
             -> Property
 movesRight t = isPenDown t ==>
      abs(endX - startX) < 0.0001
@@ -105,16 +105,16 @@ movesRight t = isPenDown t ==>
 
 -- | When the trail is empty, @currTrail@ always remains empty and no new paths
 -- are added
-trailEmptyWhenPenUp :: Turtle
+trailEmptyWhenPenUp :: TurtleState
                     -> Property
 trailEmptyWhenPenUp t = isPenDown t ==> trailIsEmpty
  where
   t'           = t # penUp # forward 4 # backward 3
-  trailIsEmpty = null . trailSegments . snd . currTrail $ t'
+  trailIsEmpty = null . lineSegments . unLoc . currTrail $ t'
 
 -- | Verify that the turtle adds a trail to @paths@ when pen is down
 -- and @penHop@ is called.
-verifyPenHopWhenPenDown :: Turtle
+verifyPenHopWhenPenDown :: TurtleState
                         -> Property
 verifyPenHopWhenPenDown t = isPenDown t ==> (numPaths t') - (numPaths t) == 1
  where 
@@ -123,17 +123,17 @@ verifyPenHopWhenPenDown t = isPenDown t ==> (numPaths t') - (numPaths t) == 1
 
 -- | Verify that the turtle does not add a trail to @paths@ when pen is up
 -- and @penHop@ is called.
-verifyPenHopWhenPenUp :: Turtle
+verifyPenHopWhenPenUp :: TurtleState
                       -> Property
-verifyPenHopWhenPenUp t = not (isPenDown t) && (null . trailSegments . snd . currTrail $ t) ==>  (numPaths t') == (numPaths t)
+verifyPenHopWhenPenUp t = not (isPenDown t) && (null . lineSegments . unLoc . currTrail $ t) ==>  (numPaths t') == (numPaths t)
  where 
   t' = t # forward 2.0 # penHop
   numPaths = length . paths
 
 -- | Verify that calling @closeCurrent@ updates the turtle position to the beginning to the trail
-verifyCloseCurrent :: Turtle
+verifyCloseCurrent :: TurtleState
                    -> Property
-verifyCloseCurrent t = (isPenDown t)  && (null . trailSegments . snd . currTrail $ t) ==> (penPos t') == origin
+verifyCloseCurrent t = (isPenDown t)  && (null . lineSegments . unLoc . currTrail $ t) ==> (penPos t') == origin
  where
   t' = t # setPenPos origin # forward 2.0 # right 90 # forward 3.0 # closeCurrent
 -- | Arbitrary instance for the Turtle type.
@@ -143,17 +143,17 @@ verifyCloseCurrent t = (isPenDown t)  && (null . trailSegments . snd . currTrail
 -- the current trail is not empty.
 --
 -- Currently we filter these out in the tests
-instance Arbitrary Turtle where
+instance Arbitrary TurtleState where
    arbitrary =
-     Turtle <$> arbitrary
+     TurtleState <$> arbitrary
             <*> arbitrary
-            <*> (Deg <$> arbitrary)
+            <*> ((@@ deg) <$> arbitrary)
             <*> arbitrary
             <*> arbitrary
             <*> arbitrary
 
 -- | Arbitrary instance for Diagrams type P2
-instance Arbitrary P2 where
+instance Arbitrary (P2 Double) where
   arbitrary = p2 <$> arbitrary
 
 -- | Arbitrary instance for TurtlePath
@@ -176,11 +176,20 @@ instance Arbitrary PenStyle where
 -- | Arbitrary instance of Segment
 --
 -- Currently this only generates linear segments only
-instance Arbitrary (Segment R2)  where
+instance Arbitrary (Segment Closed V2 Double)  where
   arbitrary = do
-    h <- Deg <$> arbitrary
+    h <- (@@ deg) <$> arbitrary
     x <- r2 <$> arbitrary
-    return $ rotate h (Linear x)
+    return $ rotate h (straight x)
 
-instance Arbitrary (Trail R2) where
-  arbitrary = Trail <$> arbitrary <*> (return False)
+instance Arbitrary (Trail' Line V2 Double) where
+  arbitrary = lineFromSegments <$> arbitrary
+
+instance Arbitrary (Trail V2 Double) where
+  arbitrary = Trail <$> (arbitrary :: Gen (Trail' Line V2 Double))
+
+instance Arbitrary (Located (Trail' Line V2 Double)) where
+  arbitrary = at <$> arbitrary <*> (arbitrary :: Gen (P2 Double))
+
+instance Arbitrary (Located (Trail V2 Double)) where
+  arbitrary = at <$> arbitrary <*> (arbitrary :: Gen (P2 Double))

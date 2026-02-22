@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 module Main where
 
-import Diagrams.Prelude
+import Diagrams.Prelude hiding (output, def)
 import Diagrams.Backend.SVG.CmdLine
 import Diagrams.TwoD.Path.Turtle
 

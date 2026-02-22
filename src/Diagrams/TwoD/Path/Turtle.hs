@@ -53,23 +53,23 @@ runTurtle = runIdentity . runTurtleT
 
 -- | A more general way to run the turtle.  Returns a computation in
 --   the underlying monad @m@ yielding the final diagram.
-drawTurtleT :: (Monad m, Functor m, Renderable (Path R2) b)
-            => TurtleT m a -> m (Diagram b R2)
+drawTurtleT :: (Monad m, Functor m, Renderable (Path V2 Double) b)
+            => TurtleT m a -> m (QDiagram b V2 Double Any)
 drawTurtleT = fmap T.getTurtleDiagram . runTurtleT
 
 -- | Run the turtle, yielding a diagram.
-drawTurtle :: (Renderable (Path R2) b) => Turtle a -> Diagram b R2
+drawTurtle :: (Renderable (Path V2 Double) b) => Turtle a -> QDiagram b V2 Double Any
 drawTurtle = runIdentity . drawTurtleT
 
 -- | A more general way to run the turtle. Returns a computation in
 --   the underlying monad @m@, ignoring any pen style commands and
 --   yielding a 2D path.
-sketchTurtleT :: (Functor m, Monad m) => TurtleT m a -> m (Path R2)
+sketchTurtleT :: (Functor m, Monad m) => TurtleT m a -> m (Path V2 Double)
 sketchTurtleT = fmap T.getTurtlePath . runTurtleT
 
 -- | Run the turtle, ignoring any pen style commands and yielding a
 --   2D path.
-sketchTurtle :: Turtle a -> Path R2
+sketchTurtle :: Turtle a -> Path V2 Double
 sketchTurtle = runIdentity . sketchTurtleT
 
 -- Motion commands
@@ -101,15 +101,15 @@ heading :: Monad m => TurtleT m Double
 heading = ST.gets (L.view deg . T.heading)
 
 -- | Sets the heading towards a given location.
-towards :: Monad m => P2 -> TurtleT m ()
+towards :: Monad m => P2 Double -> TurtleT m ()
 towards pt = ST.modify $ T.towards pt
 
 -- | Set the current turtle X/Y position.
-setPos :: Monad m => P2 -> TurtleT m ()
+setPos :: Monad m => P2 Double -> TurtleT m ()
 setPos p = ST.modify $ T.setPenPos p
 
 -- | Get the current turtle X/Y position.
-pos ::  Monad m => TurtleT m P2
+pos ::  Monad m => TurtleT m (P2 Double)
 pos = ST.gets T.penPos
 
 -- Drawing control.
