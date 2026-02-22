@@ -13,7 +13,7 @@ newcomer to Haskell, so any suggestions and contributions are welcome. Head over
 the to the [github repository for hs-logo][hs-logo] to download the sources.
 
 [Haskell]: http://haskell.org
-[hs-logo]: https://github.com/deepakjois/hs-logo
+[hs-logo]: https://github.com/RadiantCuriosity/hs-logo
 
 ## Credits
 
@@ -27,6 +27,6 @@ the to the [github repository for hs-logo][hs-logo] to download the sources.
 [calormen]: http://calormen.com/logo/
 [manual]: http://www.cs.berkeley.edu/~bh/v2ch14/manual.html
 [diagrams]: http://projects.haskell.org/diagrams/
-[turtle code]: https://github.com/deepakjois/hs-logo/blob/master/Diagrams/TwoD/Path/Turtle.hs
+[turtle code]: https://github.com/RadiantCuriosity/hs-logo/blob/master/Diagrams/TwoD/Path/Turtle.hs
 [jasper]: http://jaspervdj.be/
 [Hakyll]: http://jaspervdj.be/hakyll/

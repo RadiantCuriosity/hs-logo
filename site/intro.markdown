@@ -20,4 +20,4 @@ The interpreter is still a work in progress, and more primitives will be added
 soon. I also plan to write user guide sometime before the next release. You can
 find the sources at the [hs-logo project on github][github].
 
-[github]: http://github.com/deepakjois/hs-logo
+[github]: http://github.com/RadiantCuriosity/hs-logo

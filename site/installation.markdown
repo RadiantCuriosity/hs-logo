@@ -24,4 +24,4 @@ This will install `hs-logo` and related dependencies like [diagrams] and the [di
 
 Open an [issue] on github.
 
-[issue]: https://github.com/deepakjois/hs-logo/issues
+[issue]: https://github.com/RadiantCuriosity/hs-logo/issues

@@ -3,7 +3,7 @@ Version:             0.5.1
 Synopsis:            Logo turtle graphics interpreter
 Description:         Interpreter for the Logo programming language,
                      specialised for turtle graphics.
-Homepage:            http://deepakjois.github.com/hs-logo
+Homepage:            http://RadiantCuriosity.github.com/hs-logo
 License:             BSD3
 License-File:        LICENSE
 Author:              Deepak Jois
@@ -69,4 +69,4 @@ Test-suite turtle-tests
 
 Source-Repository head
   type: git
-  location: https://github.com/deepakjois/hs-logo
+  location: https://github.com/RadiantCuriosity/hs-logo
